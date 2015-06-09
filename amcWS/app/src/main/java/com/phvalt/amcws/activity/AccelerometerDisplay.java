@@ -56,7 +56,8 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 	private long index;
 	private String path = "/mnt/sdcard/download/";
 	private String fileName;
-	/**Layout elements**/
+
+    /**Layout elements**/
 	private TextView xCoor; // declare X axis
 	private TextView yCoor; // declare Y axis
 	private TextView zCoor; // declare Z axis
@@ -90,7 +91,8 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 	/**Spectrum variable**/
 	double[] fS;
 	double[] magX;
-	/**EventListenner setup**/
+
+	/**EventListener setup**/
 	private SensorEventListener mSensorEventListener = new SensorEventListener() {
 		@Override
 		public void onSensorChanged(SensorEvent event) {
@@ -108,8 +110,9 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 					index=index+1;
 				}
 				xCoor.setText("X : " + event.values[0]);
-				yCoor.setText("Y : " + event.values[1]);
-				zCoor.setText("Z : " + event.values[2]);
+                //Use only one axis for the data
+				//yCoor.setText("Y : " + event.values[1]);
+				//zCoor.setText("Z : " + event.values[2]);
 				synchronized (this) {
 					/**Synchronized thread if queue size is greater than
 					 * maxHistory poll() and remove, else, add to queue
@@ -152,8 +155,8 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 		setContentView(R.layout.accelerometer_display);
 
 		xCoor = (TextView) findViewById(R.id.x_label); // create object
-		yCoor = (TextView) findViewById(R.id.y_label);
-		zCoor = (TextView) findViewById(R.id.z_label);
+		//yCoor = (TextView) findViewById(R.id.y_label);
+		//zCoor = (TextView) findViewById(R.id.z_label);
 		saveButton = (Button) findViewById(R.id.saveButton);
 		saveButton.setOnClickListener(this);
 		cPB = (ProgressBar) findViewById(R.id.barTimer);//unused cause slow down the UI
@@ -166,8 +169,8 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 		mBGColor = resources.getColor(R.color.background);
 		mZeroLineColor = resources.getColor(R.color.zero_line);
 		mAxisColors[0] = resources.getColor(R.color.accele_x);
-		mAxisColors[1] = resources.getColor(R.color.accele_y);
-		mAxisColors[2] = resources.getColor(R.color.accele_z);
+		//mAxisColors[1] = resources.getColor(R.color.accele_y);
+		//mAxisColors[2] = resources.getColor(R.color.accele_z);
 
 		mGraphView = new GraphView(this);
 		frame.addView(mGraphView, 0);
@@ -179,8 +182,9 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 		Log.i(TAG, "AccelerometerDisplay.OnStart()");
 		// initialization
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		List<Sensor> sensor = mSensorManager
-				.getSensorList(Sensor.TYPE_ACCELEROMETER);
+
+        List<Sensor> sensor = mSensorManager
+				.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
 		if (sensor.size() > 0) {
 			mAccelerometer = sensor.get(0);
 		} else {
@@ -487,15 +491,12 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 	
 	private void startTimer(final int seconds) {
 		CountDownTimer countDownTimer = new CountDownTimer(seconds * 1000, 1) {
-			
-			
+
 			@Override
 			public void onTick(long millisUntilFinished) {
-				
 				long remaining = millisUntilFinished / 1000;
 				timeInfo.setText(Integer.toString((int) remaining));
 				cPB.setProgress((int) (seconds - remaining));
-				
 			}
 			@Override
 			public void onFinish() {
@@ -508,7 +509,6 @@ public class AccelerometerDisplay extends Activity implements OnClickListener {
 
 	private void saveTo(String fileName) throws IOException {
 		BufferedWriter wr = null;
-
 		try {
 			wr = new BufferedWriter(new FileWriter(path + fileName));
 			for (AccelData data : sensorData) {
